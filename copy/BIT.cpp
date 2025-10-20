@@ -1,28 +1,49 @@
-#include <iostream>
-#include <vector>
-using namespace std;
-
-class Fenwick {
-    vector<int> tree;
+// 模板来源 https://leetcode.cn/circle/discuss/mOr1u6/
+// 根据题目用 FenwickTree<int> t(n) 或者 FenwickTree<long long> t(n) 初始化
+template<typename T>
+class FenwickTree {
+    vector<T> tree;
 
 public:
-    Fenwick(int n) : tree(n) {}
+    // 使用下标 1 到 n
+    FenwickTree(int n) : tree(n + 1) {
+        // O(N) 建樹
+        // for (int i = 1; i <= nums.size(); i++) {
+        //     tree[i] += nums[i - 1];
+        //     int nxt = i + (i & -i); // 下一个关键区间的右端点
+        //     if (nxt <= nums.size()) {
+        //         tree[nxt] += tree[i];
+        //     }
+        // }
+    }
 
-    // 把下标为 i 的元素增加 v
-    void add(int i, int v) {
-        while (i < tree.size()) {
-            tree[i] += v;
-            i += i & -i;
+    // a[i] 增加 val
+    // 1 <= i <= n
+    // 时间复杂度 O(log n)
+    void update(int i, T val) {
+        for (; i < tree.size(); i += i & -i) {
+            tree[i] += val;
         }
     }
 
-    // 返回下标在 [1,i] 的元素之和
-    int pre(int i) {
-        int res = 0;
-        while (i > 0) {
+    // 求前缀和 a[1] + ... + a[i]
+    // 1 <= i <= n
+    // 时间复杂度 O(log n)
+    T pre(int i) const {
+        T res = 0;
+        for (; i > 0; i &= i - 1) {
             res += tree[i];
-            i &= i - 1;
         }
         return res;
+    }
+
+    // 求区间和 a[l] + ... + a[r]
+    // 1 <= l <= r <= n
+    // 时间复杂度 O(log n)
+    T query(int l, int r) const {
+        if (r < l) {
+            return 0;
+        }
+        return pre(r) - pre(l - 1);
     }
 };
